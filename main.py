@@ -1,4 +1,5 @@
-﻿from tkinter import *
+﻿from distutils.cmd import Command
+from tkinter import *
 import math
 # ---------------------------- CONSTANTS ------------------------------- #
 PINK = "#e2979c"
@@ -10,14 +11,21 @@ WORK_MIN = 25
 SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
 REPS = 0
+TIMER = None
 
 # ---------------------------- TIMER RESET ------------------------------- # 
-
+def Reset_timer():
+  window.after_cancel(TIMER)
+  canvas.itemconfig(timer_text, text="00:00")
+  title_label.config(text="Timer")
+  check_mark.config(text="")
+  global REPS
+  REPS = 0
 # ---------------------------- TIMER MECHANISM ------------------------------- # 
 
 def start_timer():
    global REPS
-   REPS += 1
+   REPS += 1 
    
    if REPS % 8 == 0:
     title_label.config(text="Long Break!", fg=PINK)
@@ -41,9 +49,15 @@ def count_down(count):
     canvas.itemconfig(timer_text, text= f"{count_min}:{count_sec}")
     
     if count > 0:
-     window.after(1000, count_down, count - 1)
+     global TIMER
+     TIMER = window.after(1000, count_down, count - 1)
     else:
       start_timer()
+      marks = ""
+      work_session = math.floor(REPS/2)
+      for _ in range(work_session):
+        marks += "✔"
+      check_mark.config(text=marks)
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -58,10 +72,10 @@ title_label.grid(column=1, row=0)
 start_button = Button(text="Start", highlightthickness=0, command=start_timer)
 start_button.grid(column=0, row=2)
 
-reset_button = Button(text="Reset", highlightthickness=0)
+reset_button = Button(text="Reset", highlightthickness=0, Command=Reset_timer)
 reset_button.grid(column=2, row=2)
 
-check_mark = Label(text="✔", highlightthickness=0, fg=GREEN, bg=YELLOW, font=25)
+check_mark = Label(highlightthickness=0, fg=GREEN, bg=YELLOW, font=25)
 check_mark.grid(column=1, row=3)
 
 tomato_img = PhotoImage(file=r"C:\Users\User_\Downloads\pymodoro\tomato.png")
